@@ -46,6 +46,44 @@ function convertSerialToDate(dateVal) {
 }
 
 /**
+ * 日付の比較結果を取得
+ * 
+ * @param {Date}    date1   比較元となる日付オブジェクト
+ * @param {Date}    date2   比較する日付オブジェクト
+ *
+ * @return {Integer} 比較結果(0: 一致, 1: date1<date2, -1: date1<date2) 
+ */
+function compareDatePart(date1, date2) {
+  var year1 = date1.getFullYear();
+  var month1 = date1.getMonth() + 1;
+  var day1 = date1.getDate();
+
+  var year2 = date2.getFullYear();
+  var month2 = date2.getMonth() + 1;
+  var day2 = date2.getDate();
+  
+  if (year1 < year2) {
+    return 1;
+  } else if (year1 > year2) {
+    return -1;
+  } else {
+    if (month1 < month2) {
+      return 1;
+    } else if (month1 > month2) {
+      return -1;
+    } else {
+      if (day1 < day2) {
+        return 1;
+      } else if (day1 > day2) {
+        return -1;
+      } else {
+        return 0;
+      }
+    }
+  }
+}
+
+/**
  * 日時の加算結果を取得
  * 
  * @param {Date}    date   加算ベースとなる日付オブジェクト
@@ -184,7 +222,7 @@ function isJapanHoliday(date) {
   if (g_jpHolidays != null) {
     // 対象期間を予め読み込んでいた場合は、そちらを優先
     for (var i = 0, iMax = g_jpHolidays.length; i < iMax; i++) {
-      if (compareDatePart(g_jpHolidays[i], date) == true) return true;
+      if (compareDatePart(g_jpHolidays[i], date) == 0) return true;
     }
     return false;
   } else {
@@ -305,3 +343,28 @@ function getLastBusinessDayOfMonth(date, retType) {
   }
   return lastDay;
 }
+
+/**
+ * 指定日時の当月末日を取得
+ * 
+ * @param {Date}   date       対象日時
+ * @param {String} retType    取得するデータタイプ(num or number: 日/以外: 日付オブジェクト)
+ *
+ * @return {Date or Integer} 当月末日
+ */
+function getLastDayOfMonth(date, retType) {
+  var retIsNum = (
+    retType == 'number' 
+    || retType == 'num' 
+    || retType == 'integer' 
+    || retType == 'int'
+  ) ? true : false;
+  
+  var lastDate = new Date(date.getYear(), date.getMonth() + 1, 0);
+  if (retIsNum) {
+    return lastDate.getDate();
+  } else {
+    return lastDate;
+  }
+}
+
