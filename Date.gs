@@ -119,8 +119,7 @@ function getDateTimeDiff(srcDate, dstDate, part, digitCalcType) {
       diff = calcDigit(diff/1000, 0, strDigitCalcType);
       break;
     default:
-      // パートが認識できない場合はnull
-      diff = null;
+      // パートが認識できない場合はミリ秒
       break;
   }
   return diff;
@@ -140,18 +139,60 @@ function isWeekday(date) {
   return true;
 }
 
+/* 日本の祝日配列 */
+var g_jpHolidays = null;
+
+/**
+ * 指定期間の日本の祝日を取得
+ * 
+ * @param {Date} startDate    開始日時
+ * @param {Date} endDate      終了日時
+ *
+ * @return {Array} 日付配列
+ */
+function getJapanHolidays(startDate, endDate) {
+  var jpCalendar = CalendarApp.getCalendarById('ja.japanese#holiday@group.v.calendar.google.com');
+  var aryEvents = jpCalendar.getEvents(startDate, endDate);
+  
+  var aryDates = [];
+  for (var i = 0; i < aryEvents.length; i++) {
+    aryDates.push(aryEvents[i].getStartTime());
+  }
+  return aryDates;
+}
+
+/**
+ * 指定期間の日本の祝日を変数に読み込み
+ * 
+ * @param {Date} startDate    開始日時
+ * @param {Date} endDate      終了日時
+ */
+function loadJapanHolidays(startDate, endDate) {
+  g_jpHolidays = getJapanHolidays(startDate, endDate);
+}
+
 /**
  * 日本の祝日かどうかを判定
  * ※曜日は考慮なし
+ * ※繰り返す場合は、先にloadJapanHolidaysを呼び出した方がパフォーマンスが上がる
  * 
  * @param {Date} date    対象日時
  *
  * @return {Boolean} true:祝日/false:祝日ではない
  */
 function isJapanHoliday(date) {
-  var jpCalendar = CalendarApp.getCalendarById('ja.japanese#holiday@group.v.calendar.google.com');
-  if (jpCalendar.getEventsForDay(date).length > 0) return true;
-  return false;
+  if (g_jpHolidays != null) {
+    // 対象期間を予め読み込んでいた場合は、そちらを優先
+    for (var i = 0, iMax = g_jpHolidays.length; i < iMax; i++) {
+      if (compareDatePart(g_jpHolidays[i], date) == true) return true;
+    }
+    return false;
+  } else {
+    // 都度確認
+    var jpCalendar = CalendarApp.getCalendarById('ja.japanese#holiday@group.v.calendar.google.com');
+    if (jpCalendar.getEventsForDay(date).length > 0) return true;
+    return false;
+  }
 }
 
 /**
@@ -187,9 +228,11 @@ function isBusinessDay(date) {
  * 
  * @param {Date} date    対象日時
  *
- * @return {Integer} 日数
+ * @return {Integer} 日数(対象日時が休日の場合は-1)
  */
 function getDaysOfBusinessDays(date) {
+  if (isWeekday(date) == false) return -1;
+  
   var tmpDate;
   var dayCount = 0;
   for (var i = 1, max = date.getDate(); i <= max; i++) {
