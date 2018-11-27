@@ -1,3 +1,5 @@
+/* *** LatLon.gs ************************************************************ */
+
 /**
  * 10進数(度)から分割60進数(度・分・秒)に変換
  * 
@@ -70,3 +72,5 @@ function convertDeg10ToLicense60(deg10, license60) {
 function convertDivide60ToLicense60(deg, min, sec, license60) {
   license60 = deg.toString() + toZeroPadding(min, 2) + toZeroPadding(calcDigit(sec, 0, 'round'), 2);
 }
+
+/* *** LatLon.gs ************************************************************ */

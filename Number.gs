@@ -1,3 +1,5 @@
+/* *** Number.gs ************************************************************ */
+
 /**
  * ゼロパディングされた文字列を取得
  * 
@@ -42,3 +44,5 @@ function calcDigit(val, digit, calcType) {
   calcVal = calcVal / calcDigit;
   return calcVal;
 }
+
+/* *** Number.gs ************************************************************ */
