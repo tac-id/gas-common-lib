@@ -36,6 +36,21 @@ function toDateString(date) {
 }
 
 /**
+ * フォーマットされた時刻文字列を取得(HH:mm:ss)
+ * 
+ * @param {Date} date    対象日時
+ *
+ * @return {String} フォーマットされた時刻文字列
+ */
+function toTimeString(date) {
+  return [
+      date.getHours(),
+      toZeroPadding(date.getMinutes(), 2),
+      toZeroPadding(date.getSeconds(), 2)
+    ].join(':');
+}
+
+/**
  * SpreadSheet日付形式(シリアル値)から日付オブジェクトを取得
  * 
  * @param {Integer} dateVal シリアル値
